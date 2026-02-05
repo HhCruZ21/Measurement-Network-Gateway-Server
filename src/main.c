@@ -1,15 +1,19 @@
 #include "../include/mainH.h"
 #include "../include/measdev.h"
-#include "../include/sensorThread.h"
+#include "../include/serverThread.h"
 #include "../include/networkThread.h"
+
 
 int main()
 {
     printf("mng server started");
 
     pthread_t sensor_thread, network_thread;
+    server_thread_arg srv_arg;
 
-    if (pthread_create(&sensor_thread, NULL, sensorTask, NULL) != 0)
+    srv_arg.server_port = PORT;
+
+    if (pthread_create(&sensor_thread, NULL, sensorTask, &srv_arg) != 0)
     {
         printf("Sensor thread not created...");
         return EXIT_FAILURE;
@@ -33,6 +37,6 @@ int main()
         return EXIT_FAILURE;
     }
 
-    
+
     return EXIT_SUCCESS;
 }
