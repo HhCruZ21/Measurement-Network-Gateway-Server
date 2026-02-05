@@ -10,4 +10,4 @@ typedef struct {
 } server_thread_arg;
 
 
-void *sensorTask(void *arg);
+void *serverTask(void *arg);
