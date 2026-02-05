@@ -3,7 +3,7 @@
 void *serverTask(void *arg)
 {
 
-    server_thread_arg *srv_arg = (server_thread_arg *)arg;
+    server_thread_arg_t *srv_arg = (server_thread_arg_t *)arg;
 
     int server_fd, client_fd;
     struct sockaddr_in server_addr, client_addr;

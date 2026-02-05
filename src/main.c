@@ -9,7 +9,7 @@ int main()
     printf("mng server started");
 
     pthread_t server_thread, network_thread;
-    server_thread_arg srv_arg;
+    server_thread_arg_t srv_arg;
 
     srv_arg.server_port = PORT;
 
