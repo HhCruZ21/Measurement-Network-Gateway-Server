@@ -1,3 +1,6 @@
+#ifndef MAIN_H
+#define MAIN_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -12,3 +15,5 @@ typedef struct
     uint32_t sensor_value;
     uint64_t timestamp;
 } sensor_data_t;
+
+#endif // MAIN_H

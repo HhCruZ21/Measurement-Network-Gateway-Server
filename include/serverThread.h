@@ -1,5 +1,9 @@
+#ifndef SERVER_THREAD_H
+#define SERVER_THREAD_H
+
 #include "mainH.h"
 #include <error.h>
+#include <string.h>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -10,3 +14,5 @@ typedef struct {
 
 
 void *serverTask(void *arg);
+
+#endif /**  SERVER_THREAD_H    **/

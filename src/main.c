@@ -1,8 +1,5 @@
-#include "../include/mainH.h"
-#include "../include/measdev.h"
 #include "../include/serverThread.h"
 #include "../include/networkThread.h"
-
 
 int main()
 {
@@ -36,7 +33,6 @@ int main()
         perror("Network thread join failed...");
         return EXIT_FAILURE;
     }
-
 
     return EXIT_SUCCESS;
 }

@@ -12,9 +12,9 @@
 typedef struct {
     unsigned int rnum;
     unsigned int rvalue;
-}  MeasObj_struct;
+}  measObj_struct;
 
-#define MEASOBJ_SIZE sizeof(MeasObj_struct)
+#define MEASOBJ_SIZE sizeof(measObj_struct)
 #define REGNUM_ID 0x0FF
 #define NREGS 8
 
