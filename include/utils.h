@@ -6,25 +6,33 @@
 
 #include <time.h>
 
+#define MAX31865_REG_CONFIG     0x00
+#define MAX31865_REG_RTD_MSB    0x01
+#define MAX31865_REG_RTD_LSB    0x02
+
+#define MAX31865_CFG_CONT_50HZ  0xC2  // VBIAS + AUTO + 50Hz
+#define MAX31865_CFG_CONT_60HZ  0xC0  // VBIAS + AUTO + 60Hz
+#define MAX31865_CFG_SHUTDOWN   0x00
+
+
 static struct timespec Current_time;
 static uint64_t US_startup_time;
 
 // ----------------------------
 // Initialize timer
 // ----------------------------
-void InitTimer(void);
+void initTimer(void);
 
 // ----------------------------
 // Get elapsed time since InitTimer
 // ----------------------------
-uint64_t GetElapsedTime(void);
+uint64_t getElapsedTime(void);
 
 
 // ----------------------------
 // TEMPERATURE SENSOR
 // ----------------------------
 int tempSnsrInit(int fd);
-int maxSpiInit(int fd);
 unsigned int readMAXSpiInterface(int fd, unsigned int mreg);
 void writeMAXSpiInterface(int fd, unsigned int mreg, unsigned int msend);
 unsigned int readTempSnsrVal(int fd, int *val);

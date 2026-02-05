@@ -8,7 +8,7 @@ measObj_struct tf_obj_snd, tf_obj_rcv;
 // ----------------------------
 // Initialize timer
 // ----------------------------
-void InitTimer(void)
+void initTimer(void)
 {
     struct timespec ts;
     if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
@@ -22,7 +22,7 @@ void InitTimer(void)
 // ----------------------------
 // Get elapsed time since InitTimer
 // ----------------------------
-uint64_t GetElapsedTime(void)
+uint64_t getElapsedTime(void)
 {
     if (clock_gettime(CLOCK_MONOTONIC, &current_time) != 0)
     {
@@ -36,6 +36,117 @@ uint64_t GetElapsedTime(void)
 // ----------------------------
 // TEMPERATURE SENSOR
 // ----------------------------
+// the maxread function, for reading commands into temperature sensor.
+unsigned int readMAXSpiInterface(int fd, unsigned int mreg)
+{
+    unsigned int xdata;
+    int k;
+
+    mreg <<= 8;
+    tf_obj_snd.rnum = 1;
+    tf_obj_snd.rvalue = mreg;
+    write(fd, &tf_obj_snd, MEASOBJ_SIZE);
+    k = 0;
+    xdata = 0xc0000000;
+    do
+    {
+        tf_obj_snd.rnum = REGNUM_ID;
+        tf_obj_snd.rvalue = 1;
+        write(fd, &tf_obj_snd, MEASOBJ_SIZE);
+        k++;
+        read(fd, &tf_obj_rcv, MEASOBJ_SIZE); // Read response from LKM
+        xdata = tf_obj_rcv.rvalue;
+    } while (((xdata & 0x01) == 0) && (k < 1000));
+    if (k >= 1000)
+    {
+        printf(" *** MaxRead timeout.");
+    }
+    else
+    {
+        tf_obj_snd.rnum = REGNUM_ID;
+        tf_obj_snd.rvalue = 2;
+        write(fd, &tf_obj_snd, MEASOBJ_SIZE);
+        read(fd, &tf_obj_rcv, MEASOBJ_SIZE); // Read response from LKM
+        xdata = tf_obj_rcv.rvalue;
+        xdata &= 0x0ff;
+        // printf("loop count: %d |  data: %x\n\r", k, xdata);
+    }
+    return xdata;
+}
+
+// the function for writting the values from the temperature sensor.
+void writeMAXSpiInterface(int fd, unsigned int mreg, unsigned int msend)
+{
+    unsigned int transm_data, xdata;
+    int k;
+
+    mreg |= 0x080;
+    transm_data = (mreg << 8) | (msend & 0x0ff);
+    tf_obj_snd.rnum = 1;
+    tf_obj_snd.rvalue = transm_data;
+    write(fd, &tf_obj_snd, MEASOBJ_SIZE);
+    k = 0;
+    xdata = 0xc0000000;
+    do
+    {
+        tf_obj_snd.rnum = REGNUM_ID;
+        tf_obj_snd.rvalue = 1;
+        write(fd, &tf_obj_snd, MEASOBJ_SIZE);
+        k++;
+        read(fd, &tf_obj_rcv, MEASOBJ_SIZE); // Read response from LKM
+        xdata = tf_obj_rcv.rvalue;
+    } while (((xdata & 0x01) == 0) && (k < 1000));
+    if (k >= 1000)
+    {
+        printf(" *** MaxWrite timeout.");
+    }
+}
+
+int tempSnsrInit(int fd)
+{
+    tf_obj_snd.rnum   = 0;
+    tf_obj_snd.rvalue = 0x022;
+    if (write(fd, &tf_obj_snd, MEASOBJ_SIZE) < 0)
+        return -1;
+
+    // Enable VBIAS + continuous conversion (50Hz)
+    MaxWrite(fd, MAX31865_REG_CONFIG, MAX31865_CFG_CONT_50HZ);
+
+    // Allow bias + first conversion to settle
+    usleep(10000);   // 10 ms
+
+    printf("MAX31865 initialized in continuous mode...\n");
+    return 0;
+}
+
+unsigned int readTempSnsrVal(int fd, int *val)
+{
+    uint16_t msb, lsb, val;
+
+    if (!val)
+        return -1;
+
+    /*
+     * Continuous mode:
+     *  - DO NOT start conversion
+     *  - DO NOT poll status
+     *  - Just read registers
+     */
+
+    msb = MaxRead(fd, MAX31865_REG_RTD_MSB);
+    lsb = MaxRead(fd, MAX31865_REG_RTD_LSB);
+
+    val = ((msb << 8) | lsb) >> 1;  // strip fault bit
+
+    *val = val;
+    return 0;
+
+}
+
+void Temp_Shutdown(int fd)
+{
+    MaxWrite(fd, 0x00, MAX31865_CFG_SHUTDOWN);
+}
 
 // ----------------------------
 // ADC

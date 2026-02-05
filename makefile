@@ -10,7 +10,7 @@ TARGET := main
 SRC_DIR := src
 SRCS := $(SRC_DIR)/main.c \
 		$(SRC_DIR)/ringBuffer.c \
-        $(SRC_DIR)/serverThread.c \
+        $(SRC_DIR)/sensorThread.c \
         $(SRC_DIR)/networkThread.c
 
 # ===== Object files =====

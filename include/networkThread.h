@@ -2,6 +2,15 @@
 #define NETWORK_THREAD_H
 
 #include "mainH.h"
+#include <error.h>
+#include <string.h>
+
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+typedef struct {
+    int server_port;
+} network_thread_arg_t;
 
 void *networkTask(void *arg);
 

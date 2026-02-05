@@ -1,22 +1,22 @@
-#include "../include/serverThread.h"
+#include "../include/sensorThread.h"
 #include "../include/networkThread.h"
 
 int main()
 {
-    printf("mng server started");
+    printf("mng server started...\n");
 
     pthread_t server_thread, network_thread;
-    server_thread_arg_t srv_arg;
+    network_thread_arg_t srv_arg;
 
     srv_arg.server_port = PORT;
 
-    if (pthread_create(&server_thread, NULL, serverTask, &srv_arg) != 0)
+    if (pthread_create(&server_thread, NULL, sensorTask, NULL) != 0)
     {
         perror("Sensor thread not created...");
         return EXIT_FAILURE;
     }
 
-    if (pthread_create(&network_thread, NULL, networkTask, NULL) != 0)
+    if (pthread_create(&network_thread, NULL, networkTask, &srv_arg) != 0)
     {
         perror("Network thread not created...");
         return EXIT_FAILURE;
