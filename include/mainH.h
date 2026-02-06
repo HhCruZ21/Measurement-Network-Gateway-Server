@@ -16,7 +16,8 @@ typedef enum {
     adc_zero_sid,
     adc_one_sid,
     sw_sid,
-    pb_sid
+    pb_sid,
+    snsr_cnt
 } sensor_id_t;
 
 typedef struct 

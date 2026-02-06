@@ -143,7 +143,7 @@ unsigned int readTempSnsrVal(int fd, unsigned int *regVal)
 
 }
 
-void Temp_Shutdown(int fd)
+void tempSnsrPwrDwn(int fd)
 {
     writeMAXSpiInterface(fd, 0x00, MAX31865_CFG_SHUTDOWN);
 }

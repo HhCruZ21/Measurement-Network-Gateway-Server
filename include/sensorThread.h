@@ -5,20 +5,17 @@
 #include "ringBuffer.h"
 #include <fcntl.h>
 
-typedef struct
-{
-    uint32_t temp_config;      
-    uint32_t adc_zero_config;      
-    uint32_t adc_one_config;      
-    uint32_t switch_config;   
-    uint32_t pushb_config;     
-} config_struct_t;
+extern volatile int system_running;
 
 typedef struct {
     sensor_id_t sid;
+    uint32_t rate_hz;
     uint64_t period_us;
-    uint64_t next_time;
+    uint64_t next_deadline;
+    pthread_mutex_t lock;
 } sensor_config_t;
+
+extern sensor_config_t sensor_cfg[snsr_cnt];
 
 void *sensorTask(void *arg);
 

@@ -1,6 +1,8 @@
 #include "../include/sensorThread.h"
 #include "../include/networkThread.h"
 
+volatile int system_running = 1;
+
 int main()
 {
     printf("mng server started...\n");

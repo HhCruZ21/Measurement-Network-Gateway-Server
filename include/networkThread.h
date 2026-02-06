@@ -3,10 +3,15 @@
 
 #include "mainH.h"
 #include <error.h>
+#include <errno.h>
 #include <string.h>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
+
+#define CMD_BUF_SIZE 1024
+
+extern volatile int system_running;
 
 typedef struct {
     int server_port;
