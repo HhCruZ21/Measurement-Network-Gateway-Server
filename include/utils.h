@@ -32,7 +32,7 @@ int tempSnsrInit(int fd);
 unsigned int readMAXSpiInterface(int fd, unsigned int mreg);
 void writeMAXSpiInterface(int fd, unsigned int mreg, unsigned int msend);
 unsigned int readTempSnsrVal(int fd, unsigned int *val);
-int tempSnsrPwrDwn(int fd);
+void tempSnsrPwrDwn(int fd);
 
 // ----------------------------
 // ADC

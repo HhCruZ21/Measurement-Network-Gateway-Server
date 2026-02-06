@@ -9,6 +9,7 @@
 
 #define PORT 50012
 
+typedef struct ring_buffer ring_buffer_t;
 extern ring_buffer_t *rb;
 
 typedef enum {

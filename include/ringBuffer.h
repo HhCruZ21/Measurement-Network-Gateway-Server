@@ -7,7 +7,7 @@
 #define RING_BUF_SIZE 2048
 #define NO_OF_SENSORS 5
 
-typedef struct
+typedef struct ring_buffer
 {
     pthread_mutex_t rbMutex;
     sensor_data_t sampleArray[RING_BUF_SIZE];

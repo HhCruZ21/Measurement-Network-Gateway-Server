@@ -5,6 +5,7 @@ sensor_config_t sensor_cfg[snsr_cnt];
 void *sensorTask(void *arg)
 {
     printf("Sensor thread initialized correctly...\n");
+    (void)arg;
     int fd = open("/dev/meascdd", O_RDWR);
     int i;
     unsigned int tempsnsr_val = 0;
@@ -27,7 +28,7 @@ void *sensorTask(void *arg)
 
     uint64_t now = getElapsedTime();
 
-    for (int i = 0; i < snsr_cnt; i++)
+    for (i = 0; i < snsr_cnt; i++)
     {
         sensor_cfg[i].sid = i;
         pthread_mutex_init(&sensor_cfg[i].lock, NULL);
@@ -40,17 +41,17 @@ void *sensorTask(void *arg)
     {
         uint64_t now = getElapsedTime();
 
-        for (int sid = 0; sid < snsr_cnt; sid++)
+        for (i = 0; i < snsr_cnt; i++)
         {
-            pthread_mutex_lock(&sensor_cfg[sid].lock);
+            pthread_mutex_lock(&sensor_cfg[i].lock);
 
-            if (now >= sensor_cfg[sid].next_deadline)
+            if (now >= sensor_cfg[i].next_deadline)
             {
                 sensor_data_t sample = {
-                    .sensor_id = sid,
+                    .sensor_id = i,
                     .timestamp = now};
 
-                switch (sid)
+                switch (i)
                 {
                 case temp_sid:
                     readTempSnsrVal(fd, &tempsnsr_val);
@@ -65,7 +66,7 @@ void *sensorTask(void *arg)
                         last_adc_time = now;
                     }
                     sample.sensor_value =
-                        (sid == adc_zero_sid) ? adc_zero_cache : adc_one_cache;
+                        (i == adc_zero_sid) ? adc_zero_cache : adc_one_cache;
                     break;
 
                 case sw_sid:
@@ -79,10 +80,10 @@ void *sensorTask(void *arg)
 
                 ringBufferAddSample(rb, &sample);
 
-                sensor_cfg[sid].next_deadline += sensor_cfg[sid].period_us;
+                sensor_cfg[i].next_deadline += sensor_cfg[i].period_us;
             }
 
-            pthread_mutex_unlock(&sensor_cfg[sid].lock);
+            pthread_mutex_unlock(&sensor_cfg[i].lock);
         }
 
         usleep(50); // prevent CPU burn
