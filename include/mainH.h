@@ -9,10 +9,20 @@
 
 #define PORT 50012
 
+extern ring_buffer_t *rb;
+
+typedef enum {
+    temp_sid = 0,
+    adc_zero_sid,
+    adc_one_sid,
+    sw_sid,
+    pb_sid
+} sensor_id_t;
+
 typedef struct 
 {
-    uint8_t sensor_id;
-    uint32_t sensor_value;
+    sensor_id_t sensor_id;
+    unsigned int sensor_value;
     uint64_t timestamp;
 } sensor_data_t;
 

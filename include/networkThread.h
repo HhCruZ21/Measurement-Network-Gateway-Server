@@ -12,6 +12,12 @@ typedef struct {
     int server_port;
 } network_thread_arg_t;
 
+typedef enum {
+    STREAM_IDLE,
+    STREAM_RUNNING,
+    STREAM_DISCONNECT
+} stream_t;
+
 void *networkTask(void *arg);
 
 #endif /**  NETWORK_THREAD_H    **/

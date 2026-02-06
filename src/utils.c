@@ -110,7 +110,7 @@ int tempSnsrInit(int fd)
         return -1;
 
     // Enable VBIAS + continuous conversion (50Hz)
-    MaxWrite(fd, MAX31865_REG_CONFIG, MAX31865_CFG_CONT_50HZ);
+    writeMAXSpiInterface(fd, MAX31865_REG_CONFIG, MAX31865_CFG_CONT_50HZ);
 
     // Allow bias + first conversion to settle
     usleep(10000);   // 10 ms
@@ -119,11 +119,11 @@ int tempSnsrInit(int fd)
     return 0;
 }
 
-unsigned int readTempSnsrVal(int fd, int *val)
+unsigned int readTempSnsrVal(int fd, unsigned int *regVal)
 {
     uint16_t msb, lsb, val;
 
-    if (!val)
+    if (!regVal)
         return -1;
 
     /*
@@ -133,19 +133,19 @@ unsigned int readTempSnsrVal(int fd, int *val)
      *  - Just read registers
      */
 
-    msb = MaxRead(fd, MAX31865_REG_RTD_MSB);
-    lsb = MaxRead(fd, MAX31865_REG_RTD_LSB);
+    msb = readMAXSpiInterface(fd, MAX31865_REG_RTD_MSB);
+    lsb = readMAXSpiInterface(fd, MAX31865_REG_RTD_LSB);
 
     val = ((msb << 8) | lsb) >> 1;  // strip fault bit
 
-    *val = val;
+    *regVal = val;
     return 0;
 
 }
 
 void Temp_Shutdown(int fd)
 {
-    MaxWrite(fd, 0x00, MAX31865_CFG_SHUTDOWN);
+    writeMAXSpiInterface(fd, 0x00, MAX31865_CFG_SHUTDOWN);
 }
 
 // ----------------------------

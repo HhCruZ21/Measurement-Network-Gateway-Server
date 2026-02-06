@@ -14,10 +14,6 @@
 #define MAX31865_CFG_CONT_60HZ  0xC0  // VBIAS + AUTO + 60Hz
 #define MAX31865_CFG_SHUTDOWN   0x00
 
-
-static struct timespec Current_time;
-static uint64_t US_startup_time;
-
 // ----------------------------
 // Initialize timer
 // ----------------------------

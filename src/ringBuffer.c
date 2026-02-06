@@ -34,6 +34,7 @@ void ringBufferAddSample(ring_buffer_t *rb, const sensor_data_t *sample)
 
     pthread_mutex_unlock(&rb->rbMutex);
 }
+
 void ringBufferRemoveSample(ring_buffer_t *rb, sensor_data_t *sample)
 {
     if(!rb || !sample)

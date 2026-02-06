@@ -2,7 +2,10 @@
 
 void *networkTask(void *arg)
 {
+    printf("Network thread initialized...\n");
+
     network_thread_arg_t *srv_arg = (network_thread_arg_t *)arg;
+    stream_t stream_state = STREAM_IDLE;
 
     int server_fd, client_fd;
     struct sockaddr_in server_addr, client_addr;
@@ -58,7 +61,7 @@ void *networkTask(void *arg)
 
         printf("Client connected...\n");
 
-        // Handle client here
+        // Handle client here1
 
         close(client_fd);
     }

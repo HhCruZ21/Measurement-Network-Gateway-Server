@@ -10,6 +10,12 @@ int main()
 
     srv_arg.server_port = PORT;
 
+    rb = ringBufferInit();
+    if (!rb) {
+        perror("ringBufferInit failed");
+        exit(EXIT_FAILURE);
+    }
+
     if (pthread_create(&server_thread, NULL, sensorTask, NULL) != 0)
     {
         perror("Sensor thread not created...");
