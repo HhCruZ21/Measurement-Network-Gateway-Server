@@ -74,6 +74,12 @@ void *networkTask(void *arg)
         addr_len = sizeof(client_addr);
         client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &addr_len);
 
+        struct timeval tv;
+        tv.tv_sec = 0;
+        tv.tv_usec = 50000; // 50 ms timeout
+
+        setsockopt(client_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+
         if (client_fd < 0)
         {
             if (!system_running)
@@ -88,7 +94,7 @@ void *networkTask(void *arg)
         while (1)
         {
             memset(cmd_buffer, 0, CMD_BUF_SIZE);
-            ssize_t bytes_received = recv(client_fd, cmd_buffer, CMD_BUF_SIZE - 1, MSG_DONTWAIT);
+            ssize_t bytes_received = recv(client_fd, cmd_buffer, CMD_BUF_SIZE - 1, 0);
 
             if (bytes_received > 0)
             {
@@ -137,6 +143,10 @@ void *networkTask(void *arg)
                 }
                 else if (!strcmp(cmd_buffer, "DISCONNECT"))
                 {
+                    stream_state = STREAM_DISCONNECT;
+                }
+                else if (!strcmp(cmd_buffer, "SHUTDOWN"))
+                {
                     system_running = 0;
                     stream_state = STREAM_DISCONNECT;
                 }
@@ -170,11 +180,28 @@ void *networkTask(void *arg)
                 while (count < MAX_BATCH)
                 {
 
-                    if (rb->count == 0)
+                    pthread_mutex_lock(&rb->rbMutex);
+                    int empty = (rb->count == 0);
+                    pthread_mutex_unlock(&rb->rbMutex);
+                    if (empty)
                         break;
 
                     ringBufferRemoveSample(rb, &batch[count]);
                     count++;
+                }
+
+                char logbuf[128];
+
+                for (int i = 0; i < count; i++)
+                {
+                    int len = snprintf(logbuf, sizeof(logbuf),
+                                       "[NET TX] id=%d val=%u ts=%lu\n",
+                                       batch[i].sensor_id,
+                                       batch[i].sensor_value,
+                                       (unsigned long)batch[i].timestamp);
+
+                    if (len > 0)
+                        write(STDERR_FILENO, logbuf, len);
                 }
 
                 size_t total_bytes = count * sizeof(sensor_data_t);
@@ -196,7 +223,7 @@ void *networkTask(void *arg)
                     sent_bytes += n;
                 }
                 if (count == 0)
-                    usleep(1000); // 1 ms backoff when no data
+                    usleep(100); // .1 ms backoff when no data
             }
 
             // Handle client here1
@@ -207,9 +234,6 @@ void *networkTask(void *arg)
                 close(client_fd);
                 break;
             }
-
-            if (stream_state == STREAM_IDLE)
-                usleep(1000); // 1 ms idle backoff
         }
         if (!system_running)
             break;

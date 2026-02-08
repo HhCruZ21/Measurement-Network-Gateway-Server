@@ -1,4 +1,5 @@
-#define _POSIX_C_SOURCE 200112L
+//#define _POSIX_C_SOURCE 200112L
+#define _DEFAULT_SOURCE
 #include "../include/utils.h"
 
 static struct timespec current_time;

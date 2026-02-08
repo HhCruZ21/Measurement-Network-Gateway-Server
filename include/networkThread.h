@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <arpa/inet.h>
 
 #define CMD_BUF_SIZE 1024

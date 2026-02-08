@@ -2,6 +2,7 @@
 #include "../include/networkThread.h"
 
 volatile int system_running = 1;
+system_mode_t system_mode = MODE_REAL;
 
 int main()
 {

@@ -13,6 +13,13 @@ typedef struct ring_buffer ring_buffer_t;
 extern ring_buffer_t *rb;
 
 typedef enum {
+    MODE_REAL,
+    MODE_SIM
+} system_mode_t;
+
+extern system_mode_t system_mode;
+
+typedef enum {
     temp_sid = 0,
     adc_zero_sid,
     adc_one_sid,

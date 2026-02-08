@@ -1,4 +1,5 @@
 #include "../include/sensorThread.h"
+#include "../include/fakeSensors.h"
 
 sensor_config_t sensor_cfg[snsr_cnt];
 
@@ -15,16 +16,18 @@ void *sensorTask(void *arg)
 
     if (fd < 0)
     {
-        printf("/dev/meascdd failed to open...\n");
-        return NULL;
+        printf("/dev/meascdd failed to open, switching to simulation mode...\n");
+        system_mode = MODE_SIM;
     }
     else
     {
         printf("File opened...\n");
+        system_mode = MODE_REAL;
     }
 
     initTimer();
-    tempSnsrInit(fd);
+    if (system_mode == MODE_REAL)
+        tempSnsrInit(fd);
 
     uint64_t now = getElapsedTime();
 
@@ -54,15 +57,21 @@ void *sensorTask(void *arg)
                 switch (i)
                 {
                 case temp_sid:
-                    readTempSnsrVal(fd, &tempsnsr_val);
-                    sample.sensor_value = tempsnsr_val;
+                    if (system_mode == MODE_REAL)
+                        readTempSnsrVal(fd, &tempsnsr_val);
+                    if (system_mode == MODE_SIM)
+                        sample.sensor_value = backend_read_temp();
+                    else
+                        sample.sensor_value = tempsnsr_val;
+
                     break;
 
                 case adc_zero_sid:
                 case adc_one_sid:
                     if (last_adc_time != now)
                     {
-                        getADC(fd, &adc_zero_cache, &adc_one_cache);
+                        system_mode ? backend_read_adc(&adc_zero_cache, &adc_one_cache)
+                                    : getADC(fd, &adc_zero_cache, &adc_one_cache);
                         last_adc_time = now;
                     }
                     sample.sensor_value =
@@ -70,11 +79,17 @@ void *sensorTask(void *arg)
                     break;
 
                 case sw_sid:
-                    sample.sensor_value = readZedSwitches(fd);
+                    if (system_mode == MODE_SIM)
+                        sample.sensor_value = backend_read_switches();
+                    else
+                        sample.sensor_value = readZedSwitches(fd);
                     break;
 
                 case pb_sid:
-                    sample.sensor_value = readZedPushButtons(fd);
+                    if (system_mode == MODE_SIM)
+                        sample.sensor_value = backend_read_buttons();
+                    else
+                        sample.sensor_value = readZedPushButtons(fd);
                     break;
                 }
 
@@ -89,8 +104,12 @@ void *sensorTask(void *arg)
         usleep(50); // prevent CPU burn
     }
 
-    tempSnsrPwrDwn(fd);
-    close(fd);
+    if (system_mode == MODE_REAL)
+    {
+        tempSnsrPwrDwn(fd);
+        close(fd);
+    }
+
     printf("Sensor thread finished...\n");
     return NULL;
 }
