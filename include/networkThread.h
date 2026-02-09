@@ -18,6 +18,11 @@ typedef struct {
     int server_port;
 } network_thread_arg_t;
 
+typedef struct {
+    uint32_t sensor_id;
+    uint32_t rate_hz;
+} sensor_rate_t;
+
 typedef enum {
     STREAM_IDLE,
     STREAM_RUNNING,
