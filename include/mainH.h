@@ -35,4 +35,7 @@ typedef struct
     uint64_t timestamp;
 } sensor_data_t;
 
+_Static_assert(sizeof(sensor_data_t) == 16, 
+               "sensor_data_t size changed — update MAX_BATCH calculation!");
+
 #endif // MAIN_H

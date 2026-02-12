@@ -9,6 +9,9 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <arpa/inet.h>
+#include <netinet/tcp.h>  // For TCP_NODELAY
+#include <netinet/in.h>
+#include <inttypes.h>
 
 #define CMD_BUF_SIZE 1024
 

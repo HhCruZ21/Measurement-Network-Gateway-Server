@@ -19,5 +19,8 @@ typedef struct ring_buffer
 ring_buffer_t *ringBufferInit();
 void ringBufferAddSample(ring_buffer_t *rb, const sensor_data_t *sample);
 void ringBufferRemoveSample(ring_buffer_t *rb, sensor_data_t *sample);
+size_t ringBufferRemoveBatch(ring_buffer_t *rb,
+                             sensor_data_t *dest,
+                             size_t max_samples);
 
 #endif /**  RING_BUFFER_H    **/

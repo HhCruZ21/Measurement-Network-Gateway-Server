@@ -70,7 +70,8 @@ void *sensorTask(void *arg)
                 case adc_one_sid:
                     if (last_adc_time != now)
                     {
-                        system_mode ? backend_read_adc(&adc_zero_cache, &adc_one_cache)
+                        system_mode == MODE_SIM
+                           ? backend_read_adc(&adc_zero_cache, &adc_one_cache)
                                     : getADC(fd, &adc_zero_cache, &adc_one_cache);
                         last_adc_time = now;
                     }

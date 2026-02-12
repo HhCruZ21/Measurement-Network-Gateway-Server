@@ -4,7 +4,6 @@
 #include "mainH.h"
 
 #define M_PI 3.14159265358979323846
-#define SINE_PERIOD 1024
 
 unsigned int backend_read_temp();
 void backend_read_adc(unsigned int *a0, unsigned int *a1);

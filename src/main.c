@@ -14,7 +14,8 @@ int main()
     srv_arg.server_port = PORT;
 
     rb = ringBufferInit();
-    if (!rb) {
+    if (!rb)
+    {
         perror("ringBufferInit failed");
         exit(EXIT_FAILURE);
     }
@@ -42,6 +43,9 @@ int main()
         perror("Network thread join failed...");
         return EXIT_FAILURE;
     }
+
+    free(rb);
+    printf("mng server finished...\n");
 
     return EXIT_SUCCESS;
 }

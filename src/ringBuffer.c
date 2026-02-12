@@ -52,3 +52,27 @@ void ringBufferRemoveSample(ring_buffer_t *rb, sensor_data_t *sample)
     
     pthread_mutex_unlock(&rb->rbMutex);
 }
+
+size_t ringBufferRemoveBatch(ring_buffer_t *rb,
+                             sensor_data_t *dest,
+                             size_t max_samples)
+{
+    if (!rb || !dest || max_samples == 0)
+        return 0;
+
+    pthread_mutex_lock(&rb->rbMutex);
+
+    size_t removed = 0;
+
+    while (removed < max_samples && rb->count > 0)
+    {
+        dest[removed] = rb->sampleArray[rb->read_index];
+        rb->read_index = (rb->read_index + 1) % RING_BUF_SIZE;
+        rb->count--;
+        removed++;
+    }
+
+    pthread_mutex_unlock(&rb->rbMutex);
+
+    return removed;
+}

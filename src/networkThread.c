@@ -1,7 +1,8 @@
 #include "../include/networkThread.h"
 #include "../include/sensorThread.h"
 
-#define MAX_BATCH 96
+#define TCP_PAYLOAD_TARGET 1440
+#define MAX_BATCH (TCP_PAYLOAD_TARGET / sizeof(sensor_data_t))
 
 extern sensor_config_t sensor_cfg[snsr_cnt];
 
@@ -22,6 +23,9 @@ static int sensor_from_string(const char *s)
 
 void *networkTask(void *arg)
 {
+    sensor_data_t batch[MAX_BATCH];
+    static uint64_t batch_counter = 0;
+
     printf("Network thread initialized...\n");
 
     network_thread_arg_t *srv_arg = (network_thread_arg_t *)arg;
@@ -74,12 +78,6 @@ void *networkTask(void *arg)
         addr_len = sizeof(client_addr);
         client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &addr_len);
 
-        struct timeval tv;
-        tv.tv_sec = 0;
-        tv.tv_usec = 50000; // 50 ms timeout
-
-        setsockopt(client_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-
         if (client_fd < 0)
         {
             if (!system_running)
@@ -87,6 +85,14 @@ void *networkTask(void *arg)
             printf("Client connection failed to server port %d...\n", srv_arg->server_port);
             continue;
         }
+
+        struct timeval tv;
+        tv.tv_sec = 0;
+        tv.tv_usec = 50000; // 50 ms timeout
+        setsockopt(client_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+
+        int flag = 1;
+        setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag));
 
         printf("Client connected...\n");
         stream_state = STREAM_IDLE;
@@ -156,15 +162,8 @@ void *networkTask(void *arg)
                             sensor_cfg[sid].period_us = 1000000ULL / rate;
                             sensor_cfg[sid].next_deadline = getElapsedTime() + sensor_cfg[sid].period_us;
                             pthread_mutex_unlock(&sensor_cfg[sid].lock);
-
-                            send(client_fd, "OK\n", 3, 0);
+                            printf("[SERVER] CONFIGURE applied\n");
                         }
-                        else
-                            send(client_fd, "ERR\n", 4, 0);
-                    }
-                    else
-                    {
-                        send(client_fd, "ERR\n", 4, 0);
                     }
                 }
                 else if (!strcmp(cmd_buffer, "STOP"))
@@ -204,39 +203,54 @@ void *networkTask(void *arg)
 
             if (stream_state == STREAM_RUNNING)
             {
-                sensor_data_t batch[MAX_BATCH];
-                int count = 0;
+                unsigned int count = 0;
 
-                while (count < MAX_BATCH)
+                printf("[SERVER] rb->count = %d\n", rb->count);
+                count = ringBufferRemoveBatch(rb, batch, MAX_BATCH);
+
+                if (count == 0)
                 {
-
-                    pthread_mutex_lock(&rb->rbMutex);
-                    int empty = (rb->count == 0);
-                    pthread_mutex_unlock(&rb->rbMutex);
-                    if (empty)
-                        break;
-
-                    ringBufferRemoveSample(rb, &batch[count]);
-                    count++;
-                }
-
-                char logbuf[128];
-
-                for (int i = 0; i < count; i++)
-                {
-                    int len = snprintf(logbuf, sizeof(logbuf),
-                                       "[NET TX] id=%d val=%u ts=%lu\n",
-                                       batch[i].sensor_id,
-                                       batch[i].sensor_value,
-                                       (unsigned long)batch[i].timestamp);
-
-                    if (len > 0)
-                        write(STDERR_FILENO, logbuf, len);
+                    // Not enough data yet
+                    usleep(1000);
+                    continue;
                 }
 
                 size_t total_bytes = count * sizeof(sensor_data_t);
+
+                uint32_t net_size = htonl((uint32_t)total_bytes);
+
+                /* ---- Send length prefix first ---- */
+                size_t sent = 0;
+                uint8_t *size_ptr = (uint8_t *)&net_size;
+
+                while (sent < sizeof(net_size))
+                {
+                    ssize_t n = send(client_fd,
+                                     size_ptr + sent,
+                                     sizeof(net_size) - sent,
+                                     0);
+                    if (n <= 0)
+                    {
+                        perror("send size failed");
+                        stream_state = STREAM_DISCONNECT;
+                        break;
+                    }
+                    sent += n;
+                }
+
+                if (stream_state != STREAM_RUNNING)
+                    continue;
+
+                /* ---- Now send payload ---- */
+
                 size_t sent_bytes = 0;
                 uint8_t *ptr = (uint8_t *)batch;
+
+                printf("[SERVER] Sending batch %" PRIu64
+                       " | samples=%u | bytes=%zu\n",
+                       batch_counter,
+                       count,
+                       total_bytes);
 
                 while (sent_bytes < total_bytes)
                 {
@@ -246,14 +260,24 @@ void *networkTask(void *arg)
                                      0);
                     if (n <= 0)
                     {
-                        perror("send failed");
+                        perror("send payload failed");
                         stream_state = STREAM_DISCONNECT;
                         break;
                     }
                     sent_bytes += n;
                 }
-                if (count == 0)
-                    usleep(100); // .1 ms backoff when no data
+
+                printf("[SERVER] Batch %" PRIu64
+                       " sent | actual_bytes=%zu\n",
+                       batch_counter,
+                       sent_bytes);
+
+                printf("[SERVER] Batch %" PRIu64
+                       " sent | actual_bytes=%zu\n",
+                       batch_counter,
+                       sent_bytes);
+
+                batch_counter++;
             }
 
             // Handle client here1
