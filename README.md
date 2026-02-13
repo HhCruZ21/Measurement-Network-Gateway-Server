@@ -126,6 +126,11 @@ Ensure your compiler supports:
 - CLOCK_MONOTONIC
 - Linux socket APIs
 
+```bash
+make clean
+```
+Clear build files
+
 ---
 
 ## Run
