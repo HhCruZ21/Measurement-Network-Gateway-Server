@@ -1,3 +1,16 @@
+/******************************************************************************
+ * @file    fakeSensor.h
+ * @brief   Simulation backend interface for virtual sensor data generation.
+ *
+ * Provides function prototypes for simulated temperature, ADC, switch,
+ * and push-button inputs when the system operates in MODE_SIM.
+ *
+ * Used when real hardware device (/dev/meascdd) is unavailable.
+ *
+ * @author  Haizon Helet Cruz
+ * @date    2026-02-13
+ ******************************************************************************/
+
 #ifndef FAKESNSR_H
 #define FAKESNSR_H
 

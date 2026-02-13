@@ -1,3 +1,20 @@
+/******************************************************************************
+ * @file    ringBuffer.h
+ * @brief   Thread-safe circular buffer implementation for sensor samples.
+ *
+ * Provides:
+ *  - Ring buffer structure definition
+ *  - Initialization function
+ *  - Single sample insertion
+ *  - Single sample removal
+ *  - Batch removal for network transmission
+ *
+ * Used for decoupling sensor acquisition and network streaming threads.
+ *
+ * @author  Haizon Helet Cruz
+ * @date    2026-02-13
+ ******************************************************************************/
+
 #ifndef RING_BUFFER_H
 #define RING_BUFFER_H
 

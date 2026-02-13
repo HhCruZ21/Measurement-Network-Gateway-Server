@@ -1,3 +1,18 @@
+/******************************************************************************
+ * @file    main.c
+ * @brief   Application entry point.
+ *
+ * Initializes:
+ *  - Ring buffer
+ *  - Sensor acquisition thread
+ *  - TCP network thread
+ *
+ * Manages system lifecycle and graceful shutdown.
+ *
+ * @author  Haizon Helet Cruz
+ * @date    2026-02-13
+ ******************************************************************************/
+
 #include "../include/sensorThread.h"
 #include "../include/networkThread.h"
 

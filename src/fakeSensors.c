@@ -1,3 +1,19 @@
+/******************************************************************************
+ * @file    fakeSensor.c
+ * @brief   Simulation backend for virtual sensor signals.
+ *
+ * Implements:
+ *  - Temperature drift simulation
+ *  - ADC sine/cosine waveform generation
+ *  - Simulated switch toggling
+ *  - Simulated push-button pulses
+ *
+ * Uses CLOCK_MONOTONIC for deterministic time progression.
+ *
+ * @author  Haizon Helet Cruz
+ * @date    2026-02-13
+ ******************************************************************************/
+
 #include "../include/fakeSensors.h"
 #include <stdlib.h>
 #include <time.h>
@@ -7,7 +23,7 @@
  * Monotonic simulation time (microseconds)
  * ------------------------------------------------- */
 
- #define ADC_FREQ_HZ 20.0  /* Range: 1.0 to 100.0 */
+#define ADC_FREQ_HZ 20.0 /* Range: 1.0 to 100.0 */
 
 static inline uint64_t sim_time_us(void)
 {
@@ -38,7 +54,6 @@ unsigned int backend_read_temp(void)
 /* -------------------------------------------------
  * Configuration
  * ------------------------------------------------- */
-
 
 /* -------------------------------------------------
  * ADC Channels (Variable frequency sine / cosine)

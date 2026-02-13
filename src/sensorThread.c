@@ -1,3 +1,19 @@
+/******************************************************************************
+ * @file    sensorThread.c
+ * @brief   Periodic sensor acquisition thread.
+ *
+ * Responsibilities:
+ *  - Detect hardware availability
+ *  - Operate in REAL or SIM mode
+ *  - Enforce per-sensor sampling rates
+ *  - Push timestamped samples into ring buffer
+ *
+ * Implements rate scheduling using microsecond precision deadlines.
+ *
+ * @author  Haizon Helet Cruz
+ * @date    2026-02-13
+ ******************************************************************************/
+
 #include "../include/sensorThread.h"
 #include "../include/fakeSensors.h"
 
@@ -71,8 +87,8 @@ void *sensorTask(void *arg)
                     if (last_adc_time != now)
                     {
                         system_mode == MODE_SIM
-                           ? backend_read_adc(&adc_zero_cache, &adc_one_cache)
-                                    : getADC(fd, &adc_zero_cache, &adc_one_cache);
+                            ? backend_read_adc(&adc_zero_cache, &adc_one_cache)
+                            : getADC(fd, &adc_zero_cache, &adc_one_cache);
                         last_adc_time = now;
                     }
                     sample.sensor_value =

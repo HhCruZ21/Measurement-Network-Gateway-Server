@@ -1,3 +1,19 @@
+/******************************************************************************
+ * @file    ringBuffer.c
+ * @brief   Thread-safe circular buffer implementation.
+ *
+ * Implements:
+ *  - Initialization
+ *  - Safe insertion
+ *  - Single sample removal
+ *  - Batch removal
+ *
+ * Uses mutex protection for concurrent producer-consumer access.
+ *
+ * @author  Haizon Helet Cruz
+ * @date    2026-02-13
+ ******************************************************************************/
+
 #include "../include/ringBuffer.h"
 
 ring_buffer_t *rb;
@@ -5,7 +21,7 @@ ring_buffer_t *rb;
 ring_buffer_t *ringBufferInit()
 {
     ring_buffer_t *rb = malloc(sizeof(ring_buffer_t));
-    if(!rb)
+    if (!rb)
         return NULL;
 
     pthread_mutex_init(&rb->rbMutex, NULL);
@@ -19,7 +35,7 @@ ring_buffer_t *ringBufferInit()
 
 void ringBufferAddSample(ring_buffer_t *rb, const sensor_data_t *sample)
 {
-    if(!rb || !sample)
+    if (!rb || !sample)
         return;
 
     pthread_mutex_lock(&rb->rbMutex);
@@ -27,7 +43,7 @@ void ringBufferAddSample(ring_buffer_t *rb, const sensor_data_t *sample)
     rb->sampleArray[rb->write_index] = *sample;
     rb->write_index = (rb->write_index + 1) % RING_BUF_SIZE;
 
-    if(rb->count < RING_BUF_SIZE)
+    if (rb->count < RING_BUF_SIZE)
         rb->count++;
     else
         rb->read_index = (rb->read_index + 1) % RING_BUF_SIZE;
@@ -37,11 +53,11 @@ void ringBufferAddSample(ring_buffer_t *rb, const sensor_data_t *sample)
 
 void ringBufferRemoveSample(ring_buffer_t *rb, sensor_data_t *sample)
 {
-    if(!rb || !sample)
+    if (!rb || !sample)
         return;
 
     pthread_mutex_lock(&rb->rbMutex);
-    if(rb->count == 0)
+    if (rb->count == 0)
     {
         pthread_mutex_unlock(&rb->rbMutex);
         return;
@@ -49,7 +65,7 @@ void ringBufferRemoveSample(ring_buffer_t *rb, sensor_data_t *sample)
     *sample = rb->sampleArray[rb->read_index];
     rb->read_index = (rb->read_index + 1) % RING_BUF_SIZE;
     rb->count--;
-    
+
     pthread_mutex_unlock(&rb->rbMutex);
 }
 

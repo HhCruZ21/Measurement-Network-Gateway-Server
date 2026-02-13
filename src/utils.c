@@ -1,4 +1,20 @@
-//#define _POSIX_C_SOURCE 200112L
+/******************************************************************************
+ * @file    utils.c
+ * @brief   Hardware access and timing utilities.
+ *
+ * Implements:
+ *  - Monotonic time measurement
+ *  - MAX31865 temperature sensor SPI protocol
+ *  - ADC data acquisition
+ *  - Switch and button access via Linux kernel module
+ *
+ * Abstracts low-level I/O from higher-level application logic.
+ *
+ * @author  Haizon Helet Cruz
+ * @date    2026-02-13
+ ******************************************************************************/
+
+// #define _POSIX_C_SOURCE 200112L
 #define _DEFAULT_SOURCE
 #include "../include/utils.h"
 
@@ -105,7 +121,7 @@ void writeMAXSpiInterface(int fd, unsigned int mreg, unsigned int msend)
 
 int tempSnsrInit(int fd)
 {
-    tf_obj_snd.rnum   = 0;
+    tf_obj_snd.rnum = 0;
     tf_obj_snd.rvalue = 0x022;
     if (write(fd, &tf_obj_snd, MEASOBJ_SIZE) < 0)
         return -1;
@@ -114,7 +130,7 @@ int tempSnsrInit(int fd)
     writeMAXSpiInterface(fd, MAX31865_REG_CONFIG, MAX31865_CFG_CONT_50HZ);
 
     // Allow bias + first conversion to settle
-    usleep(10000);   // 10 ms
+    usleep(10000); // 10 ms
 
     printf("MAX31865 initialized in continuous mode...\n");
     return 0;
@@ -137,11 +153,10 @@ unsigned int readTempSnsrVal(int fd, unsigned int *regVal)
     msb = readMAXSpiInterface(fd, MAX31865_REG_RTD_MSB);
     lsb = readMAXSpiInterface(fd, MAX31865_REG_RTD_LSB);
 
-    val = ((msb << 8) | lsb) >> 1;  // strip fault bit
+    val = ((msb << 8) | lsb) >> 1; // strip fault bit
 
     *regVal = val;
     return 0;
-
 }
 
 void tempSnsrPwrDwn(int fd)
