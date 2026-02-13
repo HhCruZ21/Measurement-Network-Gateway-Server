@@ -99,7 +99,8 @@ Client-to-server commands:
 |----------|------------|
 | START | Begin streaming sensor data |
 | STOP | Pause streaming |
-| CONFIGURE \<SENSOR\> \<RATE\> | Set sampling rate in Hz |
+| CONFIGURE \<SENSOR_ID\> \<RATE_HZ\> | Set sampling rate in Hz |
+| CONNECT \<IP_ADDR_IPv4\>| Connect to server using IP address |
 | DISCONNECT | Close client connection |
 | SHUTDOWN | Stop server completely |
 
