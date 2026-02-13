@@ -131,7 +131,7 @@ Ensure your compiler supports:
 ## Run
 
 ```bash
-./mng_server
+./main
 ```
 
 Default server port:
