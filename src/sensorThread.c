@@ -118,7 +118,7 @@ void *sensorTask(void *arg)
             pthread_mutex_unlock(&sensor_cfg[i].lock);
         }
 
-        usleep(50); // prevent CPU burn
+        usleep(100); // prevent CPU burn
     }
 
     if (system_mode == MODE_REAL)

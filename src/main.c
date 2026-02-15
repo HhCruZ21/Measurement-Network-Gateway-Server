@@ -23,7 +23,7 @@ int main()
 {
     printf("mng server started...\n");
 
-    pthread_t server_thread, network_thread;
+    pthread_t sensor_thread, network_thread;
     network_thread_arg_t srv_arg;
 
     srv_arg.server_port = PORT;
@@ -35,7 +35,7 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    if (pthread_create(&server_thread, NULL, sensorTask, NULL) != 0)
+    if (pthread_create(&sensor_thread, NULL, sensorTask, NULL) != 0)
     {
         perror("Sensor thread not created...");
         return EXIT_FAILURE;
@@ -47,7 +47,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    if (pthread_join(server_thread, NULL) != 0)
+    if (pthread_join(sensor_thread, NULL) != 0)
     {
         perror("Sensor thread join failed...");
         return EXIT_FAILURE;

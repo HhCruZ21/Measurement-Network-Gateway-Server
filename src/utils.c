@@ -143,13 +143,6 @@ unsigned int readTempSnsrVal(int fd, unsigned int *regVal)
     if (!regVal)
         return -1;
 
-    /*
-     * Continuous mode:
-     *  - DO NOT start conversion
-     *  - DO NOT poll status
-     *  - Just read registers
-     */
-
     msb = readMAXSpiInterface(fd, MAX31865_REG_RTD_MSB);
     lsb = readMAXSpiInterface(fd, MAX31865_REG_RTD_LSB);
 
