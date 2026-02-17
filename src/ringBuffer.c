@@ -25,6 +25,7 @@ ring_buffer_t *ringBufferInit()
         return NULL;
 
     pthread_mutex_init(&rb->rbMutex, NULL);
+    pthread_cond_init(&rb->data_available, NULL);
     rb->write_index = 0;
     rb->read_index = 0;
     rb->count = 0;
@@ -48,6 +49,7 @@ void ringBufferAddSample(ring_buffer_t *rb, const sensor_data_t *sample)
     else
         rb->read_index = (rb->read_index + 1) % RING_BUF_SIZE;
 
+    pthread_cond_signal(&rb->data_available);
     pthread_mutex_unlock(&rb->rbMutex);
 }
 
@@ -75,8 +77,11 @@ size_t ringBufferRemoveBatch(ring_buffer_t *rb,
 {
     if (!rb || !dest || max_samples == 0)
         return 0;
-
     pthread_mutex_lock(&rb->rbMutex);
+    while (rb->count == 0)
+    {
+        pthread_cond_wait(&rb->data_available, &rb->rbMutex);
+    }
 
     size_t removed = 0;
 

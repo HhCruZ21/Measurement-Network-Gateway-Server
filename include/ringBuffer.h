@@ -31,6 +31,7 @@ typedef struct ring_buffer
     size_t write_index;
     size_t read_index;
     uint16_t count;
+    pthread_cond_t  data_available;
 } ring_buffer_t;
 
 ring_buffer_t *ringBufferInit();

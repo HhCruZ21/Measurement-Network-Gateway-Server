@@ -224,13 +224,6 @@ void *networkTask(void *arg)
 
                 count = ringBufferRemoveBatch(rb, batch, MAX_BATCH);
 
-                if (count == 0)
-                {
-                    // Not enough data yet
-                    usleep(1000);
-                    continue;
-                }
-
                 size_t total_bytes = count * sizeof(sensor_data_t);
 
                 uint32_t net_size = htonl((uint32_t)total_bytes);
