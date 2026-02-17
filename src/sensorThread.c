@@ -118,7 +118,7 @@ void *sensorTask(void *arg)
             pthread_mutex_unlock(&sensor_cfg[i].lock);
         }
 
-        usleep(100); // prevent CPU burn
+        usleep(50); // less than 10 percent of highest sampling rate of 1000 Hz
     }
 
     if (system_mode == MODE_REAL)
