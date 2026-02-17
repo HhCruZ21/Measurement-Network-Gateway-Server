@@ -26,9 +26,9 @@
 #define MAX31865_REG_RTD_MSB 0x01
 #define MAX31865_REG_RTD_LSB 0x02
 
-#define MAX31865_CFG_CONT_50HZ 0xC2 // VBIAS + AUTO + 50Hz
-#define MAX31865_CFG_CONT_60HZ 0xC0 // VBIAS + AUTO + 60Hz
-#define MAX31865_CFG_SHUTDOWN 0x00
+#define MAX31865_CFG_50HZ 0x81 // VBIAS + AUTO + 50Hz
+#define MAX31865_CNV_START 0x0a1 // VBIAS + 1SHOT + 3WIRE
+#define MAX31865_CFG_SHUTDOWN 0x001
 
 // ----------------------------
 // Initialize timer

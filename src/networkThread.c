@@ -222,7 +222,6 @@ void *networkTask(void *arg)
             {
                 unsigned int count = 0;
 
-                printf("[SERVER] rb->count = %d\n", rb->count);
                 count = ringBufferRemoveBatch(rb, batch, MAX_BATCH);
 
                 if (count == 0)
@@ -283,11 +282,6 @@ void *networkTask(void *arg)
                     }
                     sent_bytes += n;
                 }
-
-                printf("[SERVER] Batch %" PRIu64
-                       " sent | actual_bytes=%zu\n",
-                       batch_counter,
-                       sent_bytes);
 
                 printf("[SERVER] Batch %" PRIu64
                        " sent | actual_bytes=%zu\n",

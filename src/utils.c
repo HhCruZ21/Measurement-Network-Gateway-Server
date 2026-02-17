@@ -126,29 +126,51 @@ int tempSnsrInit(int fd)
     if (write(fd, &tf_obj_snd, MEASOBJ_SIZE) < 0)
         return -1;
 
-    // Enable VBIAS + continuous conversion (50Hz)
-    writeMAXSpiInterface(fd, MAX31865_REG_CONFIG, MAX31865_CFG_CONT_50HZ);
-
-    // Allow bias + first conversion to settle
-    usleep(10000); // 10 ms
-
-    printf("MAX31865 initialized in continuous mode...\n");
-    return 0;
+    // Enable VBIAS @50Hz
+    writeMAXSpiInterface(fd, MAX31865_REG_CONFIG, MAX31865_CFG_50HZ);
+    printf("PMB1 initialized on startup...\n");
+    return 1;
 }
 
 unsigned int readTempSnsrVal(int fd, unsigned int *regVal)
 {
-    uint16_t msb, lsb, val;
+    uint8_t config;
+    uint8_t msb, lsb;
+    uint16_t rtd;
+    unsigned int count, status;
+    ssize_t ret;
 
-    if (!regVal)
+    // 1️⃣ Start single conversion
+    writeMAXSpiInterface(fd, MAX31865_REG_CONFIG,
+                         MAX31865_CNV_START);
+
+    count = 0;
+    do{
+        tf_obj_snd.rnum = REGNUM_ID;
+        tf_obj_snd.rvalue = 1;
+        ret = write(fd, &tf_obj_snd, MEASOBJ_SIZE);
+        if(ret < 0) perror("Temp write");
+        count++;
+        ret = read(fd, &tf_obj_rcv, MEASOBJ_SIZE);
+        if(ret < 0) perror("Temp read");
+        status = tf_obj_rcv.rvalue;
+        status &= 0x03;
+        //usleep(1000);
+    } while((status == 0x03) && (count < 1000));
+
+    if ((status & 0x03) != 0x01) {
+        printf("[TEMP] Status error: %u\n", status);
         return -1;
+    }
 
+    // 3️⃣ Read RTD
     msb = readMAXSpiInterface(fd, MAX31865_REG_RTD_MSB);
     lsb = readMAXSpiInterface(fd, MAX31865_REG_RTD_LSB);
 
-    val = ((msb << 8) | lsb) >> 1; // strip fault bit
-
-    *regVal = val;
+    rtd = ((uint16_t)msb << 8) | lsb;
+    rtd >>= 1;
+ 
+    *regVal = rtd;
     return 0;
 }
 
