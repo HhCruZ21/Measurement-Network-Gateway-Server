@@ -116,7 +116,9 @@ void *networkTask(void *arg)
         while (1)
         {
             memset(cmd_buffer, 0, CMD_BUF_SIZE);
-            ssize_t bytes_received = recv(client_fd, cmd_buffer, CMD_BUF_SIZE - 1, 0);
+            ssize_t bytes_received = -1;
+
+            bytes_received = recv(client_fd, cmd_buffer, CMD_BUF_SIZE - 1, MSG_DONTWAIT);
 
             if (bytes_received > 0)
             {
@@ -223,7 +225,8 @@ void *networkTask(void *arg)
                 unsigned int count = 0;
 
                 count = ringBufferRemoveBatch(rb, batch, MAX_BATCH);
-
+                if (count == 0)
+                    continue;
                 size_t total_bytes = count * sizeof(sensor_data_t);
 
                 uint32_t net_size = htonl((uint32_t)total_bytes);
@@ -275,11 +278,6 @@ void *networkTask(void *arg)
                     }
                     sent_bytes += n;
                 }
-
-                printf("[SERVER] Batch %" PRIu64
-                       " sent | actual_bytes=%zu\n",
-                       batch_counter,
-                       sent_bytes);
 
                 batch_counter++;
             }

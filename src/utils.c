@@ -134,40 +134,35 @@ int tempSnsrInit(int fd)
 
 unsigned int readTempSnsrVal(int fd, unsigned int *regVal)
 {
-    uint8_t config;
     uint8_t msb, lsb;
     uint16_t rtd;
-    unsigned int count, status;
-    ssize_t ret;
+    uint8_t config = 0xA1;
 
     // 1️⃣ Start single conversion
     writeMAXSpiInterface(fd, MAX31865_REG_CONFIG,
                          MAX31865_CNV_START);
 
-    count = 0;
-    do{
-        tf_obj_snd.rnum = REGNUM_ID;
-        tf_obj_snd.rvalue = 1;
-        ret = write(fd, &tf_obj_snd, MEASOBJ_SIZE);
-        if(ret < 0) perror("Temp write");
-        count++;
-        ret = read(fd, &tf_obj_rcv, MEASOBJ_SIZE);
-        if(ret < 0) perror("Temp read");
-        status = tf_obj_rcv.rvalue;
-        status &= 0x03;
-        //usleep(1000);
-    } while((status == 0x03) && (count < 1000));
-
-    if ((status & 0x03) != 0x01) {
-        printf("[TEMP] Status error: %u\n", status);
-        return -1;
-    }
+    usleep(1000);
 
     // 3️⃣ Read RTD
     msb = readMAXSpiInterface(fd, MAX31865_REG_RTD_MSB);
     lsb = readMAXSpiInterface(fd, MAX31865_REG_RTD_LSB);
 
     rtd = ((uint16_t)msb << 8) | lsb;
+
+    if (rtd & 0x01)
+        {
+            printf("[TEMP] RTD fault detected\n");
+
+            uint8_t fault = readMAXSpiInterface(fd, 0x07);
+            printf("[TEMP] Fault register = 0x%02X\n", fault);
+
+            /* Clear fault */
+            writeMAXSpiInterface(fd, MAX31865_REG_CONFIG, config | (1 << 1));
+
+            return -1;
+        }
+
     rtd >>= 1;
  
     *regVal = rtd;

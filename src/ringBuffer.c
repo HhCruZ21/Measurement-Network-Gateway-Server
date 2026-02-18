@@ -84,8 +84,9 @@ size_t ringBufferRemoveBatch(ring_buffer_t *rb,
     }
 
     size_t removed = 0;
+    size_t target = (rb->count < max_samples) ? rb->count : max_samples;
 
-    while (removed < max_samples && rb->count > 0)
+    while (removed < target)
     {
         dest[removed] = rb->sampleArray[rb->read_index];
         rb->read_index = (rb->read_index + 1) % RING_BUF_SIZE;
