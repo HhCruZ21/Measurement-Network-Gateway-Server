@@ -133,36 +133,6 @@ void *networkTask(void *arg)
 
                 if (!strcmp(cmd_buffer, "START"))
                 {
-                    sensor_rate_t rates[snsr_cnt];
-
-                    printf("[DEBUG] Sending sensor rates to client:\n");
-
-                    for (int i = 0; i < snsr_cnt; i++)
-                    {
-                        pthread_mutex_lock(&sensor_cfg[i].lock);
-                        rates[i].sensor_id = sensor_cfg[i].sid;
-                        rates[i].rate_hz = sensor_cfg[i].rate_hz;
-
-                        printf("  Sensor ID %u -> %u Hz\n",
-                               rates[i].sensor_id,
-                               rates[i].rate_hz);
-                        pthread_mutex_unlock(&sensor_cfg[i].lock);
-                    }
-
-                    fflush(stdout);
-
-                    const char hdr[] = "RATES\n";
-                    ssize_t h = send(client_fd, hdr, sizeof(hdr) - 1, 0);
-                    if (h < 0)
-                        perror("send RATES header failed");
-
-                    // Send rate table
-                    ssize_t s = send(client_fd, rates, sizeof(rates), 0);
-                    if (s < 0)
-                        perror("send sensor rates failed");
-                    else
-                        printf("[DEBUG] %ld bytes of rate data sent\n", s);
-
                     stream_state = STREAM_RUNNING;
                 }
                 else if (!strncmp(cmd_buffer, "CONFIGURE", 9))
@@ -226,7 +196,11 @@ void *networkTask(void *arg)
 
                 count = ringBufferRemoveBatch(rb, batch, MAX_BATCH);
                 if (count == 0)
+                {
+                    usleep(1000);
                     continue;
+                }
+
                 size_t total_bytes = count * sizeof(sensor_data_t);
 
                 uint32_t net_size = htonl((uint32_t)total_bytes);

@@ -77,10 +77,13 @@ size_t ringBufferRemoveBatch(ring_buffer_t *rb,
 {
     if (!rb || !dest || max_samples == 0)
         return 0;
+
     pthread_mutex_lock(&rb->rbMutex);
-    while (rb->count == 0)
+
+    if (rb->count == 0)
     {
-        pthread_cond_wait(&rb->data_available, &rb->rbMutex);
+        pthread_mutex_unlock(&rb->rbMutex);
+        return 0;
     }
 
     size_t removed = 0;
@@ -98,3 +101,4 @@ size_t ringBufferRemoveBatch(ring_buffer_t *rb,
 
     return removed;
 }
+

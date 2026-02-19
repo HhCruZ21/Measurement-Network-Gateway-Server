@@ -74,11 +74,17 @@ void *sensorTask(void *arg)
                 {
                 case temp_sid:
                     if (system_mode == MODE_REAL)
+                    {
+                        uint64_t t0 = getElapsedTime();
                         readTempSnsrVal(fd, &tempsnsr_val);
-                    if (system_mode == MODE_SIM)
-                        sample.sensor_value = backend_read_temp();
-                    else
+                        uint64_t t1 = getElapsedTime();
+
+                        printf("[REAL] Temp read took %llu us\n",
+                               (unsigned long long)(t1 - t0));
                         sample.sensor_value = tempsnsr_val;
+                    }
+                    else
+                        sample.sensor_value = backend_read_temp();
 
                     break;
 
@@ -86,10 +92,24 @@ void *sensorTask(void *arg)
                 case adc_one_sid:
                     if (last_adc_time != now)
                     {
-                        system_mode == MODE_SIM
-                            ? backend_read_adc(&adc_zero_cache, &adc_one_cache)
-                            : getADC(fd, &adc_zero_cache, &adc_one_cache);
-                        last_adc_time = now;
+                        if (last_adc_time != now)
+                        {
+                            if (system_mode == MODE_SIM)
+                            {
+                                backend_read_adc(&adc_zero_cache, &adc_one_cache);
+                            }
+                            else
+                            {
+                                uint64_t t0 = getElapsedTime();
+                                getADC(fd, &adc_zero_cache, &adc_one_cache);
+                                uint64_t t1 = getElapsedTime();
+
+                                printf("[REAL] ADC read took %llu us\n",
+                                       (unsigned long long)(t1 - t0));
+                            }
+
+                            last_adc_time = now;
+                        }
                     }
                     sample.sensor_value =
                         (i == adc_zero_sid) ? adc_zero_cache : adc_one_cache;
@@ -112,7 +132,8 @@ void *sensorTask(void *arg)
 
                 ringBufferAddSample(rb, &sample);
 
-                sensor_cfg[i].next_deadline += sensor_cfg[i].period_us;
+                while (now >= sensor_cfg[i].next_deadline)
+                    sensor_cfg[i].next_deadline += sensor_cfg[i].period_us;
             }
 
             pthread_mutex_unlock(&sensor_cfg[i].lock);
