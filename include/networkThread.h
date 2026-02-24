@@ -1,20 +1,3 @@
-/******************************************************************************
- * @file    networkThread.h
- * @brief   TCP server thread interface for sensor data streaming.
- *
- * Defines:
- *  - Network thread entry function
- *  - Command handling states
- *  - Sensor rate configuration structure
- *  - Stream state machine
- *
- * Responsible for client communication, command parsing, and
- * real-time batch transmission of sensor data.
- *
- * @author  Haizon Helet Cruz
- * @date    2026-02-13
- ******************************************************************************/
-
 #ifndef NETWORK_THREAD_H
 #define NETWORK_THREAD_H
 

@@ -1,19 +1,3 @@
-/******************************************************************************
- * @file    utils.h
- * @brief   Hardware utility and time abstraction layer.
- *
- * Provides:
- *  - High-resolution monotonic timing functions
- *  - Temperature sensor (MAX31865) interface
- *  - ADC acquisition functions
- *  - Switch and push-button access functions
- *
- * Abstracts hardware interaction from application logic.
- *
- * @author  Haizon Helet Cruz
- * @date    2026-02-13
- ******************************************************************************/
-
 #ifndef UTILS_H
 #define UTILS_H
 

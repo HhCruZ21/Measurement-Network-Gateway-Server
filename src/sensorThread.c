@@ -1,19 +1,3 @@
-/******************************************************************************
- * @file    sensorThread.c
- * @brief   Periodic sensor acquisition thread.
- *
- * Responsibilities:
- *  - Detect hardware availability
- *  - Operate in REAL or SIM mode
- *  - Enforce per-sensor sampling rates
- *  - Push timestamped samples into ring buffer
- *
- * Implements rate scheduling using microsecond precision deadlines.
- *
- * @author  Haizon Helet Cruz
- * @date    2026-02-13
- ******************************************************************************/
-
 #include "../include/sensorThread.h"
 #include "../include/fakeSensors.h"
 
@@ -51,7 +35,7 @@ void *sensorTask(void *arg)
     {
         sensor_cfg[i].sid = i;
         pthread_mutex_init(&sensor_cfg[i].lock, NULL);
-        sensor_cfg[i].rate_hz = 300; // default
+        sensor_cfg[i].rate_hz = i == 0 ? 10 : 300; // default
         sensor_cfg[i].period_us = 1000000ULL / 300;
         sensor_cfg[i].next_deadline = now;
     }
@@ -132,8 +116,8 @@ void *sensorTask(void *arg)
 
                 ringBufferAddSample(rb, &sample);
 
-                while (now >= sensor_cfg[i].next_deadline)
-                    sensor_cfg[i].next_deadline += sensor_cfg[i].period_us;
+//                while (now >= sensor_cfg[i].next_deadline)
+                    sensor_cfg[i].next_deadline = now + sensor_cfg[i].period_us;
             }
 
             pthread_mutex_unlock(&sensor_cfg[i].lock);

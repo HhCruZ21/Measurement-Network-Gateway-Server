@@ -1,20 +1,3 @@
-/******************************************************************************
- * @file    mainH.h
- * @brief   Core project definitions, global types, and shared structures.
- *
- * Defines:
- *  - System mode (REAL vs SIM)
- *  - Sensor ID enumeration
- *  - Sensor data packet structure
- *  - Global ring buffer reference
- *  - Network port configuration
- *
- * This header is shared across all modules.
- *
- * @author  Haizon Helet Cruz
- * @date    2026-02-13
- ******************************************************************************/
-
 #ifndef MAIN_H
 #define MAIN_H
 

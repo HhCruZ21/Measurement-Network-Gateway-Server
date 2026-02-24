@@ -1,19 +1,3 @@
-/******************************************************************************
- * @file    networkThread.c
- * @brief   TCP server implementation for sensor streaming.
- *
- * Features:
- *  - Multi-command handling (START, STOP, CONFIGURE, SHUTDOWN)
- *  - Dynamic sensor rate control
- *  - Batched transmission using length-prefixed frames
- *  - Thread-safe integration with ring buffer
- *
- * Optimized for low-latency streaming using TCP_NODELAY.
- *
- * @author  Haizon Helet Cruz
- * @date    2026-02-13
- ******************************************************************************/
-
 #include "../include/networkThread.h"
 #include "../include/sensorThread.h"
 

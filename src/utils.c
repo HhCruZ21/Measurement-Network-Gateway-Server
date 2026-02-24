@@ -1,19 +1,3 @@
-/******************************************************************************
- * @file    utils.c
- * @brief   Hardware access and timing utilities.
- *
- * Implements:
- *  - Monotonic time measurement
- *  - MAX31865 temperature sensor SPI protocol
- *  - ADC data acquisition
- *  - Switch and button access via Linux kernel module
- *
- * Abstracts low-level I/O from higher-level application logic.
- *
- * @author  Haizon Helet Cruz
- * @date    2026-02-13
- ******************************************************************************/
-
 // #define _POSIX_C_SOURCE 200112L
 #define _DEFAULT_SOURCE
 #include "../include/utils.h"

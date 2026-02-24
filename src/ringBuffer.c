@@ -1,19 +1,3 @@
-/******************************************************************************
- * @file    ringBuffer.c
- * @brief   Thread-safe circular buffer implementation.
- *
- * Implements:
- *  - Initialization
- *  - Safe insertion
- *  - Single sample removal
- *  - Batch removal
- *
- * Uses mutex protection for concurrent producer-consumer access.
- *
- * @author  Haizon Helet Cruz
- * @date    2026-02-13
- ******************************************************************************/
-
 #include "../include/ringBuffer.h"
 
 ring_buffer_t *rb;

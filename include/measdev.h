@@ -1,19 +1,3 @@
-/******************************************************************************
- * @file    measdev.h
- * @brief   Measurement device interface definitions.
- *
- * Contains register mappings and communication structures used to interact
- * with the Linux kernel module (/dev/meascdd).
- *
- * Defines:
- *  - Register object structure
- *  - Register identifiers
- *  - Device constants and timer configuration
- *
- * @author  Haizon Helet Cruz
- * @date    2026-02-13
- ******************************************************************************/
-
 #ifndef MEASDEV_H_
 #define MEASDEV_H_
 

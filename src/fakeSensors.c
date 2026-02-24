@@ -1,19 +1,3 @@
-/******************************************************************************
- * @file    fakeSensor.c
- * @brief   Simulation backend for virtual sensor signals.
- *
- * Implements:
- *  - Temperature drift simulation
- *  - ADC sine/cosine waveform generation
- *  - Simulated switch toggling
- *  - Simulated push-button pulses
- *
- * Uses CLOCK_MONOTONIC for deterministic time progression.
- *
- * @author  Haizon Helet Cruz
- * @date    2026-02-13
- ******************************************************************************/
-
 #include "../include/fakeSensors.h"
 #include <stdlib.h>
 #include <time.h>
